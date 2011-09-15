@@ -1,18 +1,7 @@
 <html> 
 <head> 
-<title>nowjs test</title>
+<title>Snake Battle (Alpha)</title>
 <style>
-  
-
-
-#snake-col-info h2 a, #snake-col-info h2 a:visited {
-  outline:none;
-}
-#snake-col-info h2 a:hover {
-  color:red;
-}
-#snake-col-info p {
-}
 
 #map1 {
   width:600px;
@@ -57,24 +46,66 @@
 <div id="map1">
   <div id="map"></div>
 </div>
+<div id="control">
+	<input type="button" value="up" class="direction 0"/>
+	<input type="button" value="down" class="direction 2"/>
+	<input type="button" value="left" class="direction 3"/>
+	<input type="button" value="right" class="direction 1"/>
+	<div class="snakesList"></div>
+	
+</div>
 
+<div id="code">
+	<input type="button" value="submit code" class="submitCode"/>
+	<input type="button" value="save code" class="saveCode"/>
+	<div>
+		<textarea class="codeArea" cols="80" rows="40"></textarea>
+	</div>
+</div>
+
+<div id="mapText"></div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
 <script src="/nowjs/now.js"></script>
 
 <script>
 $(document).ready(function(){
+  var code = '';
   
   now.name = new Date().getTime();
-  
   now.drawMap = function(map){
-    renderMap(map)
+  	setSnakeList(map.snakes);
+    var mapArray = renderMap(map);
+    trigger(mapArray);
   }
-  
-  function renderMap(map){
+  function setSnakeList(list){
+  	$('div.snakesList').html('');
+  	var num = 0;
+  	for(var i in list){
+  		var snake = list[i];
+  		var name = snake.die ? '<s>' + snake.name + '</s>' : snake.name;
+  		$('div.snakesList')
+  		.append('<span style="background:'
+  		+ snake.color + '">' + name + '</span>');
+  		if(++num === 6){
+  			$('div.snakesList')
+  		.append('<br/>');
+  		}
+  	}
+  }
     
+  function renderMap(map){
     var width = map.width;
     var height = map.height;
     var snakes = map.snakes;
+    
+    var mapArray = [];
+    for(var y = 0; y < height; y++){
+    	mapArray[y] = [];
+    	for(var x = 0; x < width; x++){
+    		mapArray[y][x] = null;
+    	}
+    }
+    
     $('div#map').html('');
     var $map = $('div#map');
     for(var i in snakes){
@@ -83,11 +114,77 @@ $(document).ready(function(){
         var segment = snake.body[j];
         $('<span class="snake '+snake.name + ' ' + j +'"></span>')
         .appendTo($map)
-        .css({top:(segment.y*10)+"px",left:(segment.x*10)+"px",display:"block"});
-        console.log(snake.name + ' at ' + segment.x + ', ' + segment.y);
+        .css({
+        	top:(segment.y*10)+"px",
+        	left:(segment.x*10)+"px",
+        	display:"block",
+        	background:snake.color
+        	});
+        mapArray[segment.y][segment.x] = snake;
       }
     }
+    
+    //drawMapText(mapArray);
+    return {
+    	width: width,
+    	height: height,
+    	mapArray: mapArray,
+    	snakes: snakes
+    }
   }
+  
+  function drawMapText(mapArray){
+  	var text = '';
+  	for(var y in mapArray){
+  		for(var x in mapArray[y]){
+  			if(mapArray[y][x]){
+  				if(mapArray[y][x].name == now.name){
+  					text += 'y';
+  				}else{
+  					text += 'x';
+  				}
+   			}else{
+  				text += '. ';
+  			}
+  		}
+  		text += '<br/>';
+  	}
+  	$('div#mapText').html(text);;
+  }
+  
+  function trigger(map){
+  	Map = map;
+  	eval(code);
+  }
+  
+  function setDirection(direction){
+  	now.setDirection(direction);
+  }
+  
+  // load code
+  (function loadCode(){
+  	code = localStorage.getItem('code');
+  	$('textarea.codeArea').val(code);
+  })();
+  
+  
+  $('input.submitCode').unbind('click').click(function submitCode(){
+  	code = $('textarea.codeArea').val();
+  	console.log('code submitted:');
+  	console.log(code);
+  	eval(code);
+  });
+  
+  $('input.saveCode').unbind('click').click(function saveCode(){
+  	code = $('textarea.codeArea').val();
+  	localStorage.setItem('code', code);
+  	console.log('code saved:');
+  	console.log(code);
+  });
+  
+  $('input.direction').unbind('click').click(function clickDirection(){
+  	now.setDirection($(this).attr('class').split(' ')[1]);
+  });
 });
 </script>
 </body> 

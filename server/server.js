@@ -17,10 +17,10 @@ server.listen(80);
 var everyone = nowjs.initialize(server);
 
 var groupName = 'level1';
-var gameSpeed = 500;
+var gameSpeed = 250;
 var group = nowjs.getGroup(groupName);
 var gameStepInterval;
-var map;
+var maps = {};
 var mapWidth = 60;
 var mapHeight = 40;
 
@@ -29,9 +29,8 @@ everyone.connected(function() {
   group.addUser(this.socket.id);
   
   printGroupList();
-  
-  checkGameLoop(this.socket.id);
-  map.spawnSnake(this.socket.id);
+  checkGameLoop();
+  var snake = maps[groupName].spawnSnake(this.now.name);
 });
 
 everyone.disconnected(function() {
@@ -39,12 +38,11 @@ everyone.disconnected(function() {
   group.removeUser(this.socket.id);
   
   printGroupList();
-  
-  checkGameLoop(this.socket.id);
-  map.destroySnake(this.socket.id);
+  checkGameLoop();
+  maps[groupName].destroySnake(this.now.name);
 });
 
-function checkGameLoop(clientId){
+function checkGameLoop(){
   group.count(function (ct) {
     if(ct > 0 && !gameStepInterval){
       setupGame();
@@ -61,13 +59,23 @@ function checkGameLoop(clientId){
 }
 
 function setupGame(){
-  map = new Map(mapWidth, mapHeight);
+  var map = new Map(mapWidth, mapHeight);
+  maps[groupName] = map;
 }
 
 function gameStep(){
+	var map = maps[groupName];
+	map.moveSnakes();
   var gotMap = map.getMap();
   group.now.drawMap(gotMap);
-  //console.log(gotMap.snakes);
+}
+
+everyone.now.setDirection = function(direction){
+	var map = maps[groupName];
+	var snake = map.getSnake(this.now.name);
+	if(snake){
+		var got = snake.setDirection(parseInt(direction));
+	}
 }
 
 function printGroupList(){
