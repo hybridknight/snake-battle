@@ -82,11 +82,12 @@ $(document).ready(function(){
   	var num = 0;
   	for(var i in list){
   		var snake = list[i];
-  		var name = snake.die ? '<s>' + snake.name + '</s>' : snake.name;
+  		var name = snake.name == now.name ? '------YOU------' : snake.name;
+  		name = snake.die ? '<s>' + name + '</s>' : name;
   		$('div.snakesList')
   		.append('<span style="background:'
   		+ snake.color + '">' + name + '</span>');
-  		if(++num === 6){
+  		if(++num % 6 == 0){
   			$('div.snakesList')
   		.append('<br/>');
   		}
