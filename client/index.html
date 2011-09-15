@@ -1,0 +1,94 @@
+<html> 
+<head> 
+<title>nowjs test</title>
+<style>
+  
+
+
+#snake-col-info h2 a, #snake-col-info h2 a:visited {
+  outline:none;
+}
+#snake-col-info h2 a:hover {
+  color:red;
+}
+#snake-col-info p {
+}
+
+#map1 {
+  width:600px;
+  height:400px;
+  position:relative;
+  border:1px solid #aaa;
+  overflow:hidden;
+  text-align:center;
+}
+
+#map {
+  position:absolute;
+  left:0;
+  width:100%;
+  line-height:1;
+  display:block;
+  font-size:200%;
+  z-index:101;
+  text-align:center;
+}
+.snake, .wall {
+  width:10px;
+  height:10px;
+  position:absolute;
+  z-index:99;
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.snake {
+  background:red;
+}
+
+.right {float:right}
+.error {color:red}
+.hidden {display:none}
+
+</style>
+</head> 
+ 
+<body>
+<div id="map1">
+  <div id="map"></div>
+</div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
+<script src="/nowjs/now.js"></script>
+
+<script>
+$(document).ready(function(){
+  
+  now.name = new Date().getTime();
+  
+  now.drawMap = function(map){
+    renderMap(map)
+  }
+  
+  function renderMap(map){
+    
+    var width = map.width;
+    var height = map.height;
+    var snakes = map.snakes;
+    $('div#map').html('');
+    var $map = $('div#map');
+    for(var i in snakes){
+      var snake = snakes[i];
+      for(var j in snake.body){
+        var segment = snake.body[j];
+        $('<span class="snake '+snake.name + ' ' + j +'"></span>')
+        .appendTo($map)
+        .css({top:(segment.y*10)+"px",left:(segment.x*10)+"px",display:"block"});
+        console.log(snake.name + ' at ' + segment.x + ', ' + segment.y);
+      }
+    }
+  }
+});
+</script>
+</body> 
+</html> 

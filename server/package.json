@@ -1,0 +1,12 @@
+{
+
+  "name":"snake-battle",
+
+  "version":"0.0.1",
+
+  "dependencies":{
+
+    "now":"*"
+  }
+
+}
