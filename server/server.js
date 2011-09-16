@@ -39,7 +39,7 @@ everyone.disconnected(function() {
   
   printGroupList();
   checkGameLoop();
-  maps[groupName].destroySnake(this.now.name);
+  maps[groupName].destroySnake(this.socket.id);
 });
 
 function checkGameLoop(){

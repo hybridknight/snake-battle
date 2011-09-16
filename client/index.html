@@ -83,6 +83,7 @@
 <div id="instruction">
   You can access these variables and methods.
   <ul>
+    <li><b>Store</b> - your private Store</li>
     <li><b>Map</b> - Map object</li>
     <li>
       <b>setDirection(direction)</b> - set the direction of your snake
@@ -103,7 +104,7 @@
 $(document).ready(function(){
   var code = '';
   
-  now.name = new Date().getTime();
+  now.name = localStorage.getItem('name') || new Date().getTime();
   now.drawMap = function(map){
   	setSnakeList(map.snakes);
     var mapArray = renderMap(map);
@@ -114,7 +115,8 @@ $(document).ready(function(){
   	var num = 0;
   	for(var i in list){
   		var snake = list[i];
-  		var name = snake.name;// == now.name ? '---YOU-(' + snake.score + ')----' : snake.name;
+  		var name = snake.name == now.name ? 
+  		'<b><u>' + snake.name + ' (' + snake.score + ')</u></b>' : snake.name + ' (' + snake.score + ')';
   		name = snake.die ? '<s>' + name + '</s>' : name;
   		$('div.snakesList')
   		.append('<span style="background:'
@@ -201,6 +203,10 @@ $(document).ready(function(){
   
   function trigger(map){
   	Map = map;
+  	if('undefined' === typeof Store){
+  	 Store = {};
+  	}
+  	
   	eval(code);
   }
   
@@ -240,7 +246,8 @@ $(document).ready(function(){
   $('input.setName').unbind('click').click(function submitCode(){
     var oldName = now.name;
     var newName = prompt("What's your name?", "");
-    now.setName(oldName, newName); 
+    now.setName(oldName, newName);
+    localStorage.setItem('name', newName)
   });
   
   $('input.direction').unbind('click').click(function clickDirection(){
