@@ -67,7 +67,7 @@
   </table>
   <div class="snakesList"></div>
   <div>
-    <input type="button" value="set your name" class="setName"/> - set your name
+    <input type="button" value="set your name" class="setName"/>
   </div>
 </div>
 <div id="map1">
@@ -77,7 +77,7 @@
 	<input type="button" value="submit code" class="submitCode"/> - run following code !
 	<input type="button" value="save code" class="saveCode"/> - save this code in browser
 	<div>
-		<textarea class="codeArea" cols="80" rows="40"></textarea>
+		<textarea class="codeArea" cols="80" rows="20"></textarea>
 	</div>
 </div>
 <div id="instruction">
@@ -134,6 +134,7 @@ $(document).ready(function(){
     var snakes = map.snakes;
     var cherries = map.cherries;
     
+    var me;
     var mapArray = [];
     for(var y = 0; y < height; y++){
     	mapArray[y] = [];
@@ -146,6 +147,11 @@ $(document).ready(function(){
     var $map = $('div#map');
     for(var i in snakes){
       var snake = snakes[i];
+      
+      if(snake.name == now.name){
+        me = snake;
+      }
+      
       for(var j in snake.body){
         var segment = snake.body[j];
         $('<span class="snake '+snake.name + ' ' + j +'"></span>')
@@ -178,7 +184,8 @@ $(document).ready(function(){
     	height: height,
     	mapArray: mapArray,
     	snakes: snakes,
-    	cherries: cherries
+    	cherries: cherries,
+    	me: me
     }
   }
   
@@ -232,7 +239,7 @@ $(document).ready(function(){
   $('input.submitCode').unbind('click').click(function submitCode(){
   	code = $('textarea.codeArea').val();
   	console.log('code submitted:');
-  	console.log(code);
+  	//console.log(code);
   	eval(code);
   });
   
@@ -240,7 +247,7 @@ $(document).ready(function(){
   	code = $('textarea.codeArea').val();
   	localStorage.setItem('code', code);
   	console.log('code saved:');
-  	console.log(code);
+  	//console.log(code);
   });
   
   $('input.setName').unbind('click').click(function submitCode(){
