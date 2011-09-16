@@ -66,14 +66,16 @@
     </tr>
   </table>
   <div class="snakesList"></div>
-  <div><p></p></div>
+  <div>
+    <input type="button" value="set your name" class="setName"/> - set your name
+  </div>
 </div>
 <div id="map1">
   <div id="map"></div>
 </div>
 <div id="code">
-	<input type="button" value="submit code" class="submitCode"/>
-	<input type="button" value="save code" class="saveCode"/>
+	<input type="button" value="submit code" class="submitCode"/> - run following code !
+	<input type="button" value="save code" class="saveCode"/> - save this code in browser
 	<div>
 		<textarea class="codeArea" cols="80" rows="40"></textarea>
 	</div>
@@ -112,7 +114,7 @@ $(document).ready(function(){
   	var num = 0;
   	for(var i in list){
   		var snake = list[i];
-  		var name = snake.name == now.name ? '---YOU-(' + snake.score + ')----' : snake.name;
+  		var name = snake.name;// == now.name ? '---YOU-(' + snake.score + ')----' : snake.name;
   		name = snake.die ? '<s>' + name + '</s>' : name;
   		$('div.snakesList')
   		.append('<span style="background:'
@@ -209,6 +211,14 @@ $(document).ready(function(){
   // load code
   (function loadCode(){
   	code = localStorage.getItem('code');
+  	
+  	if(!(code && code.length > 0)){
+  	  code = "// random direction"
+      +"\nvar direction = Math.floor(Math.random()*4);"
+      +"\n// set direction of snake"
+      +"\nsetDirection(direction);";
+  	}
+  	
   	$('textarea.codeArea').val(code);
   })();
   
@@ -225,6 +235,12 @@ $(document).ready(function(){
   	localStorage.setItem('code', code);
   	console.log('code saved:');
   	console.log(code);
+  });
+  
+  $('input.setName').unbind('click').click(function submitCode(){
+    var oldName = now.name;
+    var newName = prompt("What's your name?", "");
+    now.setName(oldName, newName); 
   });
   
   $('input.direction').unbind('click').click(function clickDirection(){

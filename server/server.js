@@ -30,7 +30,7 @@ everyone.connected(function() {
   
   printGroupList();
   checkGameLoop();
-  var snake = maps[groupName].spawnSnake(this.now.name);
+  var snake = maps[groupName].spawnSnake(this.socket.id, this.now.name);
 });
 
 everyone.disconnected(function() {
@@ -73,10 +73,19 @@ function gameStep(){
 
 everyone.now.setDirection = function(direction){
 	var map = maps[groupName];
-	var snake = map.getSnake(this.now.name);
+	var snake = map.getSnake(this.socket.id);
 	if(snake){
 		var got = snake.setDirection(parseInt(direction));
 	}
+}
+
+everyone.now.setName = function(oldName, newName){
+  var map = maps[groupName];
+  var snake = map.getSnake(this.socket.id);
+  if(snake.id == this.socket.id){
+    snake.setName(newName);
+    this.now.name = newName;
+  }
 }
 
 function printGroupList(){

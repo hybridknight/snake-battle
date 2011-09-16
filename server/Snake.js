@@ -1,6 +1,7 @@
 var CHERRY_SCORE = 5;
 var CHERRY_COLOR = 'red';
-var Snake = function(name, map, x, y){
+var Snake = function(id, name, map, x, y){
+  this.id = id;
   this.score = 0;
   this.name = name;
   this.map = map;
@@ -23,6 +24,10 @@ var Snake = function(name, map, x, y){
   this.toDirection = 1;
   this.color = get_random_color();
   console.log('Snake ' + name + ' was born at ' + x + ', ' + y);
+}
+
+Snake.prototype.setName = function(name){
+  this.name = name;
 }
 
 Snake.prototype.move = function(){
@@ -154,9 +159,6 @@ Map.prototype.checkHealth = function(){
   	if(!this.snakes[i].die){
   		var head = this.snakes[i].head;
   		for(var j in this.snakes){
-  			// if(this.snakes[i].name == this.snakes[j].name){
-  				// continue;
-  			// }
   			var targetBody = this.snakes[i].name == this.snakes[j].name ? 
   			                 this.snakes[j].body.slice(1)
   			                 : this.snakes[j].body;
@@ -180,7 +182,7 @@ Map.prototype.checkHealth = function(){
   }
 }
 
-Map.prototype.spawnSnake = function(name){
+Map.prototype.spawnSnake = function(id, name){
   var x;
   var y;
   var snakes = this.snakes;
@@ -204,19 +206,20 @@ Map.prototype.spawnSnake = function(name){
     }
   }
   
-  var snake = new Snake(name, this, x, y);
-  snakes[name] = snake;
+  var snake = new Snake(id, name, this, x, y);
+  snakes[id] = snake;
   return snake;
 }
 
-Map.prototype.destroySnake = function(name){
-  delete this.snakes[name];
+Map.prototype.destroySnake = function(id){
+  delete this.snakes[id];
 }
 
 Map.prototype.getSnakes = function(){
   var snakes = {}
   for(var i in this.snakes){
     snakes[i] = {};
+    snakes[i].id = this.snakes[i].id;
     snakes[i].name = this.snakes[i].name;
     snakes[i].direction = this.snakes[i].direction;
     snakes[i].head = this.snakes[i].head;
@@ -228,8 +231,8 @@ Map.prototype.getSnakes = function(){
   return snakes;
 }
 
-Map.prototype.getSnake = function(name){
-	return this.snakes[name] || null;
+Map.prototype.getSnake = function(id){
+	return this.snakes[id] || null;
 }
 
 Map.prototype.getMap = function(){
