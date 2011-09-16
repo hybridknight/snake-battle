@@ -4,7 +4,7 @@ var Snake = require('./Snake').Snake;
 var Map = require('./Snake').Map;
 
 var server = require('http').createServer(function(req, response) {
-  fs.readFile('../client/index.html', function(err, data) {
+  fs.readFile('./client/index.html', function(err, data) {
     response.writeHead(200, {
       'Content-Type' : 'text/html'
     });
@@ -12,7 +12,7 @@ var server = require('http').createServer(function(req, response) {
     response.end();
   });
 });
-server.listen(80);
+server.listen(81);
 
 var everyone = nowjs.initialize(server);
 
