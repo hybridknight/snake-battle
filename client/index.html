@@ -103,7 +103,7 @@
 <script>
 $(document).ready(function(){
   var code = '';
-  
+  alert = function(a){console.log(a);}
   now.name = localStorage.getItem('name') || new Date().getTime();
   now.drawMap = function(map){
   	setSnakeList(map.snakes);
