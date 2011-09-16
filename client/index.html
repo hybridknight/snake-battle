@@ -2,8 +2,16 @@
 <head> 
 <title>Snake Battle (Alpha)</title>
 <style>
+body{
+  font-size: 13px;
+  font-family:"Helvetica Neue",Helvetica,Arial,freesans;
+}
+a {
+  text-decoration: none;
+  color: #006699;
+}
 
-#map1 {
+#map-outer {
   width:900px;
   height:400px;
   position:relative;
@@ -70,7 +78,7 @@
     <input type="button" value="set your name" class="setName"/>
   </div>
 </div>
-<div id="map1">
+<div id="map-outer">
   <div id="map"></div>
 </div>
 <div id="code">
@@ -97,6 +105,7 @@
   </ul>
 </div>
 <div id="mapText"></div>
+<div id="footer">by <a href="https://twitter.com/hybridknight">@hybridknight</a></div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
 <script src="/nowjs/now.js"></script>
 
