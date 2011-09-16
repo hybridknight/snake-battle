@@ -21,7 +21,7 @@ var gameSpeed = 250;
 var group = nowjs.getGroup(groupName);
 var gameStepInterval;
 var maps = {};
-var mapWidth = 60;
+var mapWidth = 90;
 var mapHeight = 40;
 
 everyone.connected(function() {
@@ -61,6 +61,7 @@ function checkGameLoop(){
 function setupGame(){
   var map = new Map(mapWidth, mapHeight);
   maps[groupName] = map;
+  map.spawnCherry();
 }
 
 function gameStep(){

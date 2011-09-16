@@ -1,4 +1,7 @@
+var CHERRY_SCORE = 5;
+var CHERRY_COLOR = 'red';
 var Snake = function(name, map, x, y){
+  this.score = 0;
   this.name = name;
   this.map = map;
   this.die = false;
@@ -6,6 +9,7 @@ var Snake = function(name, map, x, y){
     x: x,
     y: y
   }
+  
   this.body = [{
     x: x,
     y: y
@@ -13,6 +17,8 @@ var Snake = function(name, map, x, y){
   	x: x + 1,
   	y: y
   }];
+  
+  this.tail = null;
   this.direction = 1;
   this.toDirection = 1;
   this.color = get_random_color();
@@ -53,7 +59,13 @@ Snake.prototype.move = function(){
 	
 	//console.log(head.x + ', ' + head.y + ' to ' +);
 	this.head = {x: x,y: y}
+	this.tail = body[body.length - 1];
 	this.body = [{x: x,y: y}].concat(body.slice(0, body.length - 1));
+}
+
+Snake.prototype.advance = function(cherry){
+  this.score += cherry.score;
+  this.body.push(this.tail);
 }
 
 Snake.prototype.setDirection = function(direction){
@@ -73,6 +85,59 @@ var Map = function(width, height){
   this.width = width;
   this.height = height;
   this.snakes = {};
+  this.cherries = {};
+  this.cherrySpawned = 0;
+}
+
+Map.prototype.spawnCherry = function(){
+  var x;
+  var y;
+  var snakes = this.snakes;
+  var cherries = this.cherries;
+  var width = this.width;
+  var height = this.height;
+  while(true){
+    x = Math.floor(Math.random() * 10000 % width);
+    y = Math.floor(Math.random() * 10000 % height);
+    var found = false;
+    for(var i in snakes){
+      var snake = snakes[i];
+      for(var j in snake.body){
+        if(snake.body[j].x == x && snake.body[j].y == y){
+          found = true;
+          break;
+        }
+      }
+    }
+    if(!found){
+      for(var i in cherries){
+        var cherry = cherries[i];
+        if(cherry.x == x && cherry.y == y){
+          found = true;
+          break;
+        }
+      }
+    }
+    
+    if(!found){
+      break;
+    }
+  }
+  
+  var cherry = {
+    x: x,
+    y: y,
+    score: CHERRY_SCORE,
+    color: CHERRY_COLOR,
+    cherryNo: ++this.cherrySpawned
+  };
+  this.cherries[cherry.cherryNo] = cherry;
+  console.log('Cherry was spawned at ' + x + ', ' + y);
+  return cherry;
+}
+
+Map.prototype.destroyCherry = function(cherryNo){
+  delete this.cherries[cherryNo];
 }
 
 Map.prototype.moveSnakes = function(){
@@ -89,15 +154,27 @@ Map.prototype.checkHealth = function(){
   	if(!this.snakes[i].die){
   		var head = this.snakes[i].head;
   		for(var j in this.snakes){
-  			if(this.snakes[i].name == this.snakes[j].name){
-  				continue;
-  			}
-  			for(var k in this.snakes[j].body){
-  				var segment = this.snakes[j].body[k];
+  			// if(this.snakes[i].name == this.snakes[j].name){
+  				// continue;
+  			// }
+  			var targetBody = this.snakes[i].name == this.snakes[j].name ? 
+  			                 this.snakes[j].body.slice(1)
+  			                 : this.snakes[j].body;
+  			for(var k in targetBody){
+  				var segment = targetBody[k];
   				if(head.x === segment.x && head.y === segment.y){
   					this.snakes[i].destroy();
   				}
   			}
+  		}
+  		
+  		for(var k in this.cherries){
+  		  var cherry = this.cherries[k];
+  		  if(head.x === cherry.x && head.y === cherry.y){
+  		    this.snakes[i].advance(cherry);
+          this.destroyCherry(cherry.cherryNo);
+          this.spawnCherry();
+        }
   		}
   	}
   }
@@ -146,6 +223,7 @@ Map.prototype.getSnakes = function(){
     snakes[i].body = this.snakes[i].body;
     snakes[i].color = this.snakes[i].color;
     snakes[i].die = this.snakes[i].die;
+    snakes[i].score = this.snakes[i].score;
   }
   return snakes;
 }
@@ -158,7 +236,8 @@ Map.prototype.getMap = function(){
   return {
     width: this.width,
     height: this.height,
-    snakes: this.getSnakes()
+    snakes: this.getSnakes(),
+    cherries: this.cherries
   }
 }
 

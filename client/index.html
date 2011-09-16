@@ -4,7 +4,7 @@
 <style>
 
 #map1 {
-  width:600px;
+  width:900px;
   height:400px;
   position:relative;
   border:1px solid #aaa;
@@ -22,7 +22,7 @@
   z-index:101;
   text-align:center;
 }
-.snake, .wall {
+.snake, .wall, .cherry{
   width:10px;
   height:10px;
   position:absolute;
@@ -35,6 +35,10 @@
   background:red;
 }
 
+.cherry {
+  background:red;
+}
+
 .right {float:right}
 .error {color:red}
 .hidden {display:none}
@@ -43,18 +47,30 @@
 </head> 
  
 <body>
+<div id="control">
+  <table>
+    <tr>
+      <td></td>
+      <td><input type="button" value="u" class="direction 0"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><input type="button" value="l" class="direction 3"/></td>
+      <td></td>
+      <td><input type="button" value="r" class="direction 1"/></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="button" value="d" class="direction 2"/></td>
+      <td></td>
+    </tr>
+  </table>
+  <div class="snakesList"></div>
+  <div><p></p></div>
+</div>
 <div id="map1">
   <div id="map"></div>
 </div>
-<div id="control">
-	<input type="button" value="up" class="direction 0"/>
-	<input type="button" value="down" class="direction 2"/>
-	<input type="button" value="left" class="direction 3"/>
-	<input type="button" value="right" class="direction 1"/>
-	<div class="snakesList"></div>
-	
-</div>
-
 <div id="code">
 	<input type="button" value="submit code" class="submitCode"/>
 	<input type="button" value="save code" class="saveCode"/>
@@ -62,7 +78,21 @@
 		<textarea class="codeArea" cols="80" rows="40"></textarea>
 	</div>
 </div>
-
+<div id="instruction">
+  You can access these variables and methods.
+  <ul>
+    <li><b>Map</b> - Map object</li>
+    <li>
+      <b>setDirection(direction)</b> - set the direction of your snake
+      <ul>
+        <li>direction = 0 - up</li>
+        <li>direction = 1 - right</li>
+        <li>direction = 2 - down</li>
+        <li>direction = 3 - left</li>
+      </ul>
+    </li>
+  </ul>
+</div>
 <div id="mapText"></div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
 <script src="/nowjs/now.js"></script>
@@ -82,7 +112,7 @@ $(document).ready(function(){
   	var num = 0;
   	for(var i in list){
   		var snake = list[i];
-  		var name = snake.name == now.name ? '------YOU------' : snake.name;
+  		var name = snake.name == now.name ? '---YOU-(' + snake.score + ')----' : snake.name;
   		name = snake.die ? '<s>' + name + '</s>' : name;
   		$('div.snakesList')
   		.append('<span style="background:'
@@ -98,6 +128,7 @@ $(document).ready(function(){
     var width = map.width;
     var height = map.height;
     var snakes = map.snakes;
+    var cherries = map.cherries;
     
     var mapArray = [];
     for(var y = 0; y < height; y++){
@@ -125,12 +156,25 @@ $(document).ready(function(){
       }
     }
     
+    for(var i in cherries){
+      var cherry = cherries[i];
+      $('<span class="cherry '+cherry.color +' ' + cherry.cherryNo + '"></span>')
+        .appendTo($map)
+        .css({
+          top:(cherry.y*10)+"px",
+          left:(cherry.x*10)+"px",
+          display:"block",
+          background:cherry.color
+          });
+        mapArray[cherry.y][cherry.x] = cherry;
+    }
     //drawMapText(mapArray);
     return {
     	width: width,
     	height: height,
     	mapArray: mapArray,
-    	snakes: snakes
+    	snakes: snakes,
+    	cherries: cherries
     }
   }
   
