@@ -1,275 +1,342 @@
-<html> 
-<head> 
-<title>Snake Battle (Alpha)</title>
-<style>
-body{
-  font-size: 13px;
-  font-family:"Helvetica Neue",Helvetica,Arial,freesans;
-}
-a {
-  text-decoration: none;
-  color: #006699;
-}
-
-#map-outer {
-  width:900px;
-  height:400px;
-  position:relative;
-  border:1px solid #aaa;
-  overflow:hidden;
-  text-align:center;
-}
-
-#map {
-  position:absolute;
-  left:0;
-  width:100%;
-  line-height:1;
-  display:block;
-  font-size:200%;
-  z-index:101;
-  text-align:center;
-}
-.snake, .wall, .cherry{
-  width:10px;
-  height:10px;
-  position:absolute;
-  z-index:99;
-  display:block;
-  white-space:nowrap;
-  overflow:hidden;
-}
-.snake {
-  background:red;
-}
-
-.cherry {
-  background:red;
-}
-
-.right {float:right}
-.error {color:red}
-.hidden {display:none}
-
-</style>
-</head> 
- 
-<body>
-<div id="control">
-  <table>
-    <tr>
-      <td></td>
-      <td><input type="button" value="u" class="direction 0"/></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><input type="button" value="l" class="direction 3"/></td>
-      <td></td>
-      <td><input type="button" value="r" class="direction 1"/></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td><input type="button" value="d" class="direction 2"/></td>
-      <td></td>
-    </tr>
-  </table>
-  <div class="snakesList"></div>
-  <div>
-    <input type="button" value="set your name" class="setName"/>
-  </div>
-</div>
-<div id="map-outer">
-  <div id="map"></div>
-</div>
-<div id="code">
-	<input type="button" value="submit code" class="submitCode"/> - run following code !
-	<input type="button" value="save code" class="saveCode"/> - save this code in browser
-	<div>
-		<textarea class="codeArea" cols="80" rows="20"></textarea>
-	</div>
-</div>
-<div id="instruction">
-  You can access these variables and methods.
-  <ul>
-    <li><b>Store</b> - your private Store</li>
-    <li><b>Map</b> - Map object</li>
-    <li>
-      <b>setDirection(direction)</b> - set the direction of your snake
-      <ul>
-        <li>direction = 0 - up</li>
-        <li>direction = 1 - right</li>
-        <li>direction = 2 - down</li>
-        <li>direction = 3 - left</li>
-      </ul>
-    </li>
-  </ul>
-</div>
-<div id="mapText"></div>
-<div id="footer">by <a href="https://twitter.com/hybridknight">@hybridknight</a></div>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
-<script src="/nowjs/now.js"></script>
-
-<script>
-$(document).ready(function(){
-  var code = '';
-  alert = function(a){console.log(a);}
-  now.name = localStorage.getItem('name') || new Date().getTime();
-  now.drawMap = function(map){
-  	setSnakeList(map.snakes);
-    var mapArray = renderMap(map);
-    trigger(mapArray);
-  }
-  function setSnakeList(list){
-  	$('div.snakesList').html('');
-  	var num = 0;
-  	for(var i in list){
-  		var snake = list[i];
-  		var name = snake.name == now.name ? 
-  		'<b><u>' + snake.name + ' (' + snake.score + ')</u></b>' : snake.name + ' (' + snake.score + ')';
-  		name = snake.die ? '<s>' + name + '</s>' : name;
-  		$('div.snakesList')
-  		.append('<span style="background:'
-  		+ snake.color + '">' + name + '</span>');
-  		if(++num % 6 == 0){
-  			$('div.snakesList')
-  		.append('<br/>');
-  		}
-  	}
-  }
-    
-  function renderMap(map){
-    var width = map.width;
-    var height = map.height;
-    var snakes = map.snakes;
-    var cherries = map.cherries;
-    
-    var me;
-    var mapArray = [];
-    for(var y = 0; y < height; y++){
-    	mapArray[y] = [];
-    	for(var x = 0; x < width; x++){
-    		mapArray[y][x] = null;
-    	}
-    }
-    
-    $('div#map').html('');
-    var $map = $('div#map');
-    for(var i in snakes){
-      var snake = snakes[i];
-      
-      if(snake.name == now.name){
-        me = snake;
+<!doctype html>
+<html class="no-js" lang="en" ng-app="snakebattleApp">
+  <head>
+    <title>Snake Battle (Alpha)</title>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      #map-outer {
+        width: 900px;
+        height: 400px;
+        position: relative;
+        border: 1px solid #aaa;
+        overflow: hidden;
+        text-align: center;
       }
-      
-      for(var j in snake.body){
-        var segment = snake.body[j];
-        $('<span class="snake '+snake.name + ' ' + j +'"></span>')
-        .appendTo($map)
-        .css({
-        	top:(segment.y*10)+"px",
-        	left:(segment.x*10)+"px",
-        	display:"block",
-        	background:snake.color
-        	});
-        mapArray[segment.y][segment.x] = snake;
+      #map {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        line-height: 1;
+        display: block;
+        font-size: 200%;
+        z-index: 101;
+        text-align: center;
       }
-    }
-    
-    for(var i in cherries){
-      var cherry = cherries[i];
-      $('<span class="cherry '+cherry.color +' ' + cherry.cherryNo + '"></span>')
-        .appendTo($map)
-        .css({
-          top:(cherry.y*10)+"px",
-          left:(cherry.x*10)+"px",
-          display:"block",
-          background:cherry.color
+      .snake, .wall, .cherry{
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        z-index: 99;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .snake { background:red; }
+      .cherry { background:red; }
+      .right { float:right }
+      .error { color:red }
+      .hidden { display:none }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="page-header">
+            <h1 id="head">Snake Battle</h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <div id="map-outer">
+            <div id="map"></div>
+          </div>
+        </div>
+        <div class="col-md-2 col-md-offset-2">
+          <h4 class="">Leader Board</h4>
+          <div id="leader-board" ng-controller="LeaderBoardCtrl">
+            <ol>
+              <li ng-repeat="snake in snakes | orderBy:orderProp">
+                {{snake.name}} - {{snake.score}}
+              </li>
+            </ol>
+          </div>
+          <div class="row">
+            <button class="btn btn-default setName">Set my name</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10">
+          <div class="row">
+            <div class="col-md-12">
+              <h3 class="">Let's Code</h3>
+              <div id="code">
+                <div id="menu-bar" ng-controller="MenuCtrl">
+                  <button class="btn btn-primary btn-lg submitCode" data-toggle="tooltip" title="Run following code" ng-click="run()" ng-hide="running">
+                    <i class="glyphicon glyphicon-play"></i> Run
+                  </button>
+                  <button class="btn btn-warning btn-lg pause" data-toggle="tooltip" title="Pause running code" ng-click="pause()" ng-show="running">
+                    <i class="glyphicon glyphicon-pause"></i> Pause
+                  </button>
+                  <button class="btn btn-success btn-lg saveCode" data-toggle="tooltip" title="Save this code" ng-click="save()"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                </div>
+                <div>
+                  <textarea class="codeArea" cols="80" rows="20"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <h4 class="">Manual Control</h4>
+          <table>
+            <tr>
+              <td></td>
+              <td>
+                <button type="button" class="btn btn-info btn-lg direction" value="u" data-direction="0"><i class="glyphicon glyphicon-arrow-up"></i></button>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>
+                <button type="button" class="btn btn-info btn-lg direction" value="l" data-direction="3">
+              <i class="glyphicon glyphicon-arrow-left"></i></button>
+              </td>
+              <td></td>
+              <td>
+                <button type="button" class="btn btn-info btn-lg direction" value="r" data-direction="1"><i class="glyphicon glyphicon-arrow-right"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <button type="button" class="btn btn-info btn-lg direction" value="d" data-direction="2"><i class="glyphicon glyphicon-arrow-down"></i></button>
+              </td>
+              <td></td>
+            </tr>
+          </table>
+          <hr>
+          <div class="row">
+            <div id="instruction">
+              <h4 class="">Instruction</h4>
+              <p>You can access these variables and methods.</p>
+              <ul>
+                <li><b>Store</b> - your private Store</li>
+                <li><b>Map</b> - Map object</li>
+                <li>
+                  <b>#setDirection(direction)</b> - set the direction of your snake
+                  <ul>
+                    <li>direction = 0 - up</li>
+                    <li>direction = 1 - right</li>
+                    <li>direction = 2 - down</li>
+                    <li>direction = 3 - left</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mapText"></div>
+    <div id="footer">by <a href="https://twitter.com/hybridknight">@hybridknight</a></div>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js
+    "></script>
+    <script type="text/javascript" src="/nowjs/now.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+
+    <script>
+      code = '';
+      var snakebattleApp = angular.module('snakebattleApp', []);
+      snakebattleApp.controller('LeaderBoardCtrl', function ($scope) {
+        $scope.snakes = [];
+        $scope.orderProp = '-score';
+
+        $scope.updateScoreBoard = function(snakes){
+          $scope.snakes = snakes;
+          $scope.$apply();
+        }
+      });
+      snakebattleApp.controller('MenuCtrl', function ($scope) {
+        $scope.running = false;
+        $scope.run = function(){
+          $scope.running = true;
+          code = $('textarea.codeArea').val();
+          eval(code);
+        }
+
+        $scope.pause = function(){
+          $scope.running = false;
+          code = '';
+        }
+
+        $scope.save = function(){
+          localStorage.setItem('code', $('textarea.codeArea').val());
+        }
+      });
+
+      $('[data-toggle="tooltip"]').tooltip();
+
+      alert = function(a){console.log(a);}
+      now.name = localStorage.getItem('name') || new Date().getTime();
+      now.ready(function(){
+        now.setName('', now.name);
+      });
+      now.drawMap = function(map){
+      	ngSetSnakeList(map.snakes);
+        var mapArray = renderMap(map);
+        trigger(mapArray);
+      }
+      function ngSetSnakeList(list){
+        var microappscope = angular.element($("#leader-board")).scope();
+        var snakes = []
+        for(var i in list){
+          var snake = list[i];
+          snakes.push({
+            name: snake.name,
+            score: snake.score
           });
-        mapArray[cherry.y][cherry.x] = cherry;
-    }
-    //drawMapText(mapArray);
-    return {
-    	width: width,
-    	height: height,
-    	mapArray: mapArray,
-    	snakes: snakes,
-    	cherries: cherries,
-    	me: me
-    }
-  }
-  
-  function drawMapText(mapArray){
-  	var text = '';
-  	for(var y in mapArray){
-  		for(var x in mapArray[y]){
-  			if(mapArray[y][x]){
-  				if(mapArray[y][x].name == now.name){
-  					text += 'y';
-  				}else{
-  					text += 'x';
-  				}
-   			}else{
-  				text += '. ';
-  			}
-  		}
-  		text += '<br/>';
-  	}
-  	$('div#mapText').html(text);;
-  }
-  
-  function trigger(map){
-  	Map = map;
-  	if('undefined' === typeof Store){
-  	 Store = {};
-  	}
-  	
-  	eval(code);
-  }
-  
-  function setDirection(direction){
-  	now.setDirection(direction);
-  }
-  
-  // load code
-  (function loadCode(){
-  	code = localStorage.getItem('code');
-  	
-  	if(!(code && code.length > 0)){
-  	  code = "// random direction"
-      +"\nvar direction = Math.floor(Math.random()*4);"
-      +"\n// set direction of snake"
-      +"\nsetDirection(direction);";
-  	}
-  	
-  	$('textarea.codeArea').val(code);
-  })();
-  
-  
-  $('input.submitCode').unbind('click').click(function submitCode(){
-  	code = $('textarea.codeArea').val();
-  	console.log('code submitted:');
-  	//console.log(code);
-  	eval(code);
-  });
-  
-  $('input.saveCode').unbind('click').click(function saveCode(){
-  	code = $('textarea.codeArea').val();
-  	localStorage.setItem('code', code);
-  	console.log('code saved:');
-  	//console.log(code);
-  });
-  
-  $('input.setName').unbind('click').click(function submitCode(){
-    var oldName = now.name;
-    var newName = prompt("What's your name?", "");
-    now.setName(oldName, newName);
-    localStorage.setItem('name', newName)
-  });
-  
-  $('input.direction').unbind('click').click(function clickDirection(){
-  	now.setDirection($(this).attr('class').split(' ')[1]);
-  });
-});
-</script>
-</body> 
-</html> 
+        }
+        microappscope.updateScoreBoard(snakes);
+      }
+      function setSnakeList(list){
+      	$('div.snakesList').html('');
+      	var num = 0;
+      	for(var i in list){
+      		var snake = list[i];
+      		var name = snake.name == now.name ?
+      		'<b><u>' + snake.name + ' (' + snake.score + ')</u></b>' : snake.name + ' (' + snake.score + ')';
+      		name = snake.die ? '<s>' + name + '</s>' : name;
+      		$('div.snakesList')
+      		.append('<span style="background:'
+      		+ snake.color + '">' + name + '</span>');
+      		if(++num % 6 == 0){
+      			$('div.snakesList')
+      		.append('<br/>');
+      		}
+      	}
+      }
+
+      function renderMap(map){
+        var width = map.width;
+        var height = map.height;
+        var snakes = map.snakes;
+        var cherries = map.cherries;
+
+        var me;
+        var mapArray = [];
+        for(var y = 0; y < height; y++){
+        	mapArray[y] = [];
+        	for(var x = 0; x < width; x++){
+        		mapArray[y][x] = null;
+        	}
+        }
+
+        $('div#map').html('');
+        var $map = $('div#map');
+        for(var i in snakes){
+          var snake = snakes[i];
+
+          if(snake.name == now.name){
+            me = snake;
+          }
+
+          for(var j in snake.body){
+            var segment = snake.body[j];
+            $('<span class="snake '+snake.name + ' ' + j +'"></span>')
+            .appendTo($map)
+            .css({
+            	top:(segment.y*10)+"px",
+            	left:(segment.x*10)+"px",
+            	display:"block",
+            	background:snake.color
+            	});
+            mapArray[segment.y][segment.x] = snake;
+          }
+        }
+
+        for(var i in cherries){
+          var cherry = cherries[i];
+          $('<span class="cherry '+cherry.color +' ' + cherry.cherryNo + '"></span>')
+            .appendTo($map)
+            .css({
+              top:(cherry.y*10)+"px",
+              left:(cherry.x*10)+"px",
+              display:"block",
+              background:cherry.color
+              });
+            mapArray[cherry.y][cherry.x] = cherry;
+        }
+        //drawMapText(mapArray);
+        return {
+        	width: width,
+        	height: height,
+        	mapArray: mapArray,
+        	snakes: snakes,
+        	cherries: cherries,
+        	me: me
+        }
+      }
+
+      function drawMapText(mapArray){
+      	var text = '';
+      	for(var y in mapArray){
+      		for(var x in mapArray[y]){
+      			if(mapArray[y][x]){
+      				if(mapArray[y][x].name == now.name){
+      					text += 'y';
+      				}else{
+      					text += 'x';
+      				}
+       			}else{
+      				text += '. ';
+      			}
+      		}
+      		text += '<br/>';
+      	}
+      	$('div#mapText').html(text);;
+      }
+
+      function trigger(map){
+      	Map = map;
+      	if('undefined' === typeof Store){
+      	 Store = {};
+      	}
+
+      	eval(code);
+      }
+
+      function setDirection(direction){
+      	now.setDirection(direction);
+      }
+
+      // load code
+      (function loadCode(){
+      	var savedCode = localStorage.getItem('code');
+
+      	if(!(savedCode && savedCode.length > 0)){
+      	  savedCode = "// random direction"
+          +"\nvar direction = Math.floor(Math.random()*4);"
+          +"\n// set direction of snake"
+          +"\nsetDirection(direction);";
+      	}
+
+      	$('textarea.codeArea').val(savedCode);
+      })();
+
+      $('button.setName').unbind('click').click(function submitCode(){
+        var oldName = now.name;
+        var newName = prompt("What's your name?", "");
+        now.setName(oldName, newName);
+        localStorage.setItem('name', newName)
+      });
+
+      $('button.direction').unbind('click').click(function clickDirection(){
+      	now.setDirection($(this).data('direction'));
+      });
+    </script>
+  </body>
+</html>
