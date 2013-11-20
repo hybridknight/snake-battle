@@ -58,12 +58,12 @@
           <div id="leader-board" ng-controller="LeaderBoardCtrl">
             <ol>
               <li ng-repeat="snake in snakes | orderBy:orderProp">
-                {{snake.name}} - {{snake.score}}
+                <span class="badge" style="background-color:{{snake.color}};">{{snake.name}}</span> {{snake.score || ''}}
               </li>
             </ol>
           </div>
           <div class="row">
-            <button class="btn btn-default setName">Set my name</button>
+            <button class="btn btn-default setName">Change my name</button>
           </div>
         </div>
       </div>
@@ -81,6 +81,7 @@
                     <i class="glyphicon glyphicon-pause"></i> Pause
                   </button>
                   <button class="btn btn-success btn-lg saveCode" data-toggle="tooltip" title="Save this code" ng-click="save()"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                  <p ng-show="saving">Saved</p>
                 </div>
                 <div>
                   <textarea class="codeArea" cols="80" rows="20"></textarea>
@@ -162,6 +163,7 @@
       });
       snakebattleApp.controller('MenuCtrl', function ($scope) {
         $scope.running = false;
+        $scope.saving = false;
         $scope.run = function(){
           $scope.running = true;
           code = $('textarea.codeArea').val();
@@ -175,13 +177,17 @@
 
         $scope.save = function(){
           localStorage.setItem('code', $('textarea.codeArea').val());
+          $scope.saving = true;
+          setTimeout(function(){
+            $scope.saving = false;
+          }, 2000);
         }
       });
 
       $('[data-toggle="tooltip"]').tooltip();
 
       alert = function(a){console.log(a);}
-      now.name = localStorage.getItem('name') || new Date().getTime();
+      now.name = localStorage.getItem('name') || 'Player';
       now.ready(function(){
         now.setName('', now.name);
       });
@@ -197,7 +203,8 @@
           var snake = list[i];
           snakes.push({
             name: snake.name,
-            score: snake.score
+            score: snake.score,
+            color: snake.color
           });
         }
         microappscope.updateScoreBoard(snakes);
@@ -329,9 +336,11 @@
 
       $('button.setName').unbind('click').click(function submitCode(){
         var oldName = now.name;
-        var newName = prompt("What's your name?", "");
-        now.setName(oldName, newName);
-        localStorage.setItem('name', newName)
+        var newName = prompt("What's your name?", oldName);
+        if(newName){
+          now.setName(oldName, newName);
+          localStorage.setItem('name', newName)
+        }
       });
 
       $('button.direction').unbind('click').click(function clickDirection(){
