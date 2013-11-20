@@ -12,7 +12,7 @@ var server = require('http').createServer(function(req, response) {
     response.end();
   });
 });
-server.listen(80);
+server.listen(3000);
 
 var everyone = nowjs.initialize(server);
 
@@ -27,7 +27,7 @@ var mapHeight = 40;
 everyone.connected(function() {
   console.log("Joined: " + this.now.name + ' clientId: ' + this.socket.id);
   group.addUser(this.socket.id);
-  
+
   printGroupList();
   checkGameLoop();
   var snake = maps[groupName].spawnSnake(this.socket.id, this.now.name);
@@ -36,7 +36,7 @@ everyone.connected(function() {
 everyone.disconnected(function() {
   console.log("Left: " + this.now.name + ' clientId: ' + this.socket.id);
   group.removeUser(this.socket.id);
-  
+
   printGroupList();
   checkGameLoop();
   maps[groupName].destroySnake(this.socket.id);
