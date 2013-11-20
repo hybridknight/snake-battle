@@ -2,14 +2,35 @@ var fs = require('fs');
 var nowjs = require('now');
 var Snake = require('./Snake').Snake;
 var Map = require('./Snake').Map;
+var path = require('path');
+var url = require('url');
+var mime = require('mime');
 
 var server = require('http').createServer(function(req, response) {
-  fs.readFile('./client/index.html', function(err, data) {
-    response.writeHead(200, {
-      'Content-Type' : 'text/html'
+  var uri = url.parse(req.url).pathname
+    , filename = path.join(process.cwd(), 'client', uri);
+
+  path.exists(filename, function(exists) {
+    if(!exists) {
+      response.writeHead(404, {"Content-Type": "text/plain"});
+      response.write("404 Not Found\n");
+      response.end();
+      return;
+    }
+
+  if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+    fs.readFile(filename, "binary", function(err, file) {
+      if(err) {
+        response.writeHead(500, {"Content-Type": "text/plain"});
+        response.write(err + "\n");
+        response.end();
+        return;
+      }
+
+      response.writeHead(200, {"Content-Type": mime.lookup(filename)});
+      response.write(file, "binary");
+      response.end();
     });
-    response.write(data);
-    response.end();
   });
 });
 server.listen(3000);

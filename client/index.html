@@ -36,6 +36,7 @@
       .right { float:right }
       .error { color:red }
       .hidden { display:none }
+      #editor { height: 450px; }
     </style>
   </head>
   <body>
@@ -71,20 +72,27 @@
         <div class="col-md-10">
           <div class="row">
             <div class="col-md-12">
-              <h3 class="">Let's Code</h3>
-              <div id="code">
-                <div id="menu-bar" ng-controller="MenuCtrl">
-                  <button class="btn btn-primary btn-lg submitCode" data-toggle="tooltip" title="Run following code" ng-click="run()" ng-hide="running">
-                    <i class="glyphicon glyphicon-play"></i> Run
-                  </button>
-                  <button class="btn btn-warning btn-lg pause" data-toggle="tooltip" title="Pause running code" ng-click="pause()" ng-show="running">
-                    <i class="glyphicon glyphicon-pause"></i> Pause
-                  </button>
-                  <button class="btn btn-success btn-lg saveCode" data-toggle="tooltip" title="Save this code" ng-click="save()"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
-                  <p ng-show="saving">Saved</p>
+              <div class="row">
+                <div class="col-md-12">
+                  <h3 class="pull-left">Let's Code</h3>
+                  <p></p>
+                  <div id="code" class="pull-right">
+                    <div id="menu-bar" ng-controller="MenuCtrl">
+                      <button class="btn btn-primary btn-lg submitCode" data-toggle="tooltip" title="Run following code" ng-click="run()" ng-hide="running">
+                        <i class="glyphicon glyphicon-play"></i> Run
+                      </button>
+                      <button class="btn btn-warning btn-lg pause" data-toggle="tooltip" title="Pause running code" ng-click="pause()" ng-show="running">
+                        <i class="glyphicon glyphicon-pause"></i> Pause
+                      </button>
+                      <button class="btn btn-success btn-lg saveCode" data-toggle="tooltip" title="Save this code" ng-click="save()"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                      <p ng-show="saving">Saved</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <textarea class="codeArea" cols="80" rows="20"></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div id="editor" class="clearfix"></div>
                 </div>
               </div>
             </div>
@@ -140,17 +148,29 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-12">
+        <p class="text-left">
+          By <a href="https://twitter.com/hybridknight">@hybridknight</a>
+          <a href="https://twitter.com/hybridknight" class="twitter-follow-button" data-show-count="false" data-lang="en">Follow @hybridknight</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          <iframe src="http://ghbtns.com/github-btn.html?user=hybridknight&repo=snake-battle&type=fork"
+  allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>
+        </p>
+        </div>
+      </div>
     </div>
     <div id="mapText"></div>
-    <div id="footer">by <a href="https://twitter.com/hybridknight">@hybridknight</a></div>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js
     "></script>
     <script type="text/javascript" src="/nowjs/now.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="ace/ace.js" charset="utf-8"></script>
 
     <script>
       code = '';
+      var editor;
       var snakebattleApp = angular.module('snakebattleApp', []);
       snakebattleApp.controller('LeaderBoardCtrl', function ($scope) {
         $scope.snakes = [];
@@ -166,7 +186,7 @@
         $scope.saving = false;
         $scope.run = function(){
           $scope.running = true;
-          code = $('textarea.codeArea').val();
+          code = editor.getValue();
           eval(code);
         }
 
@@ -176,7 +196,7 @@
         }
 
         $scope.save = function(){
-          localStorage.setItem('code', $('textarea.codeArea').val());
+          localStorage.setItem('code', editor.getValue());
           $scope.saving = true;
           setTimeout(function(){
             $scope.saving = false;
@@ -328,10 +348,10 @@
       	  savedCode = "// random direction"
           +"\nvar direction = Math.floor(Math.random()*4);"
           +"\n// set direction of snake"
-          +"\nsetDirection(direction);";
+          +"\nsetDirection(direction);\n";
       	}
 
-      	$('textarea.codeArea').val(savedCode);
+      	$('#editor').text(savedCode);
       })();
 
       $('button.setName').unbind('click').click(function submitCode(){
@@ -346,6 +366,9 @@
       $('button.direction').unbind('click').click(function clickDirection(){
       	now.setDirection($(this).data('direction'));
       });
+
+      editor = ace.edit("editor");
+      editor.getSession().setMode("ace/mode/javascript");
     </script>
   </body>
 </html>

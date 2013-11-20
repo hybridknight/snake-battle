@@ -6,7 +6,8 @@
 
   "dependencies":{
 
-    "now":"*"
+    "now":"*",
+    "mime":"*"
   }
 
 }
