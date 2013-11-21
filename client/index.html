@@ -59,7 +59,8 @@
           <div id="leader-board" ng-controller="LeaderBoardCtrl">
             <ol>
               <li ng-repeat="snake in snakes | orderBy:orderProp">
-                <span class="badge" style="background-color:{{snake.color}};">{{snake.name}}</span> {{snake.score || ''}}
+                <span class="label" style="background-color:{{snake.color}};">{{snake.name}}</span> <span class="badge" ng-show="snake.score>0">{{snake.score}}</span>
+                <i class="glyphicon glyphicon-tower" ng-show="$index==0"></i> <i class="glyphicon glyphicon-user" ng-show="snake.me"></i>
               </li>
             </ol>
           </div>
@@ -224,7 +225,8 @@
           snakes.push({
             name: snake.name,
             score: snake.score,
-            color: snake.color
+            color: snake.color,
+            me: snake.name == now.name
           });
         }
         microappscope.updateScoreBoard(snakes);
